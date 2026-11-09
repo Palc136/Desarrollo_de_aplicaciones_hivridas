@@ -1,0 +1,149 @@
+<!-- ============================================================
+     VISTA DE LOGIN / REGISTRO
+     ============================================================ -->
+
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>
+      @if (mode === 'login') { Iniciar sesión }
+      @else { Crear cuenta }
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="login-content">
+
+  <div class="login-container">
+
+    <h1>Mi Tienda Artesanal</h1>
+    <p class="subtitle">
+      @if (mode === 'login') { Ingresa con tu cuenta }
+      @else { Crea una cuenta nueva }
+    </p>
+
+    <!-- ──────────────────────────────────────────────── -->
+    <!-- SELECTOR DE MODO (Login / Registro)              -->
+    <!-- ──────────────────────────────────────────────── -->
+    <!-- ion-segment es un control de pestañas.
+         [(ngModel)]="mode" enlaza el valor seleccionado.
+         (ionChange)="onModeChange($event.detail.value)" avisa
+         cuando cambia para limpiar mensajes. -->
+    <ion-segment
+        [value]="mode"
+        (ionChange)="onModeChange($event)">
+
+      <ion-segment-button value="login">
+        <ion-label>Ingresar</ion-label>
+      </ion-segment-button>
+
+      <ion-segment-button value="register">
+        <ion-label>Crear cuenta</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+
+    <!-- ──────────────────────────────────────────────── -->
+    <!-- CAMPO: EMAIL (en ambos modos)                    -->
+    <!-- ──────────────────────────────────────────────── -->
+    <ion-item>
+      <ion-label position="floating">Correo electrónico</ion-label>
+      <ion-input
+        type="email"
+        [(ngModel)]="email"
+        placeholder="tu@email.com"
+        autocomplete="email">
+      </ion-input>
+    </ion-item>
+
+    <!-- ──────────────────────────────────────────────── -->
+    <!-- CAMPO: TIPO DE USUARIO (solo en registro)        -->
+    <!-- ──────────────────────────────────────────────── -->
+    <!-- Se muestra solo si mode === 'register'.
+         El admin NO aparece aquí: no se puede elegir. -->
+    @if (mode === 'register') {
+      <ion-item>
+        <ion-label position="stacked">Tipo de usuario</ion-label>
+        <ion-segment [value]="role" (ionChange)="onRoleChange($event)">
+          <ion-segment-button value="comprador">
+            <ion-label>Comprador</ion-label>
+          </ion-segment-button>
+          <ion-segment-button value="vendedor">
+            <ion-label>Vendedor</ion-label>
+          </ion-segment-button>
+        </ion-segment>
+      </ion-item>
+    }
+
+    <!-- ──────────────────────────────────────────────── -->
+    <!-- CAMPO: CONTRASEÑA (en ambos modos)               -->
+    <!-- ──────────────────────────────────────────────── -->
+    <ion-item>
+      <ion-label position="floating">Contraseña</ion-label>
+      <ion-input
+        type="password"
+        [(ngModel)]="password"
+        placeholder="Mínimo 6 caracteres"
+        autocomplete="current-password">
+      </ion-input>
+    </ion-item>
+
+    <!-- Nota sobre requisitos en modo registro -->
+    @if (mode === 'register') {
+      <ion-note color="medium" class="note">
+        La contraseña debe tener al menos 6 caracteres.
+        El correo admin&#64;test.com está reservado.
+      </ion-note>
+    }
+
+    <!-- ──────────────────────────────────────────────── -->
+    <!-- MENSAJES DE ERROR / ÉXITO                        -->
+    <!-- ──────────────────────────────────────────────── -->
+    @if (errorMsg) {
+      <ion-text color="danger" class="error-text">
+        <p>
+          <ion-icon name="alert-circle-outline"></ion-icon>
+          {{ errorMsg }}
+        </p>
+      </ion-text>
+    }
+
+    @if (successMsg) {
+      <ion-text color="success" class="success-text">
+        <p>{{ successMsg }}</p>
+      </ion-text>
+    }
+
+    <!-- ──────────────────────────────────────────────── -->
+    <!-- BOTÓN PRINCIPAL                                  -->
+    <!-- ──────────────────────────────────────────────── -->
+    <!-- El texto e ícono cambian según el modo.
+         Se deshabilita mientras loading === true. -->
+    <ion-button
+      expand="block"
+      color="primary"
+      class="submit-btn"
+      [disabled]="loading"
+      (click)="onSubmit()">
+
+      @if (loading) {
+        <ion-spinner name="crescent"></ion-spinner>
+      } @else if (mode === 'login') {
+        <ion-icon slot="start" name="log-in-outline"></ion-icon>
+        Ingresar
+      } @else {
+        <ion-icon slot="start" name="person-add-outline"></ion-icon>
+        Crear cuenta
+      }
+    </ion-button>
+
+    <!-- ──────────────────────────────────────────────── -->
+    <!-- PISTA DE PRUEBAS                                 -->
+    <!-- ──────────────────────────────────────────────── -->
+    <div class="hint">
+      <p><strong>Cuentas de prueba:</strong></p>
+      <p>• admin&#64;test.com / 123456 → administrador</p>
+      <p>• O crea tu propia cuenta con "Crear cuenta"</p>
+    </div>
+
+  </div>
+
+</ion-content>

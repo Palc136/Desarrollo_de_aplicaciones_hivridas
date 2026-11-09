@@ -1,0 +1,7 @@
+{
+  "name": "miTiendaArtesanal",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}

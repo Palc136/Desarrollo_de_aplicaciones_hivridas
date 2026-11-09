@@ -1,0 +1,90 @@
+<!-- ============================================================
+     VISTA DE LA GALERÍA DE FOTOS (tab1.page.html)
+     ------------------------------------------------------------
+     Esta plantilla define QUÉ SE VE en la pantalla. La lógica
+     (qué fotos hay, cómo se cargan, cómo se eliminan) vive en
+     el archivo tab1.page.ts; aquí solo "pintamos" datos y
+     escuchamos eventos del usuario.
+
+     Estructura general:
+       1. ion-header  → barra superior con el título.
+       2. ion-content → área scrolleable con:
+            - un grid con las fotos (si las hay)
+            - un mensaje vacío (si no hay fotos)
+            - un botón flotante (FAB) para tomar foto.
+     ============================================================ -->
+
+
+<!-- ============================================================
+     1) HEADER (BARRA SUPERIOR)
+     ------------------------------------------------------------
+     ion-header es la barra que se queda fija arriba mientras el
+     contenido scrollea. [translucent]="true" permite que el
+     contenido se vea por debajo con efecto de transparencia.
+     ============================================================ -->
+<!-- ============================================================
+     VISTA DE LA GALERÍA + LOGOUT
+     ============================================================ -->
+
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>Mi Galería</ion-title>
+
+    <!-- Botón de logout: solo se muestra si hay usuario.
+         @if evita renderizar el botón cuando currentUser es null. -->
+    @if (currentUser) {
+      <ion-buttons slot="end">
+        <ion-button (click)="logout()">
+          <ion-icon slot="icon-only" name="log-out-outline"></ion-icon>
+        </ion-button>
+      </ion-buttons>
+    }
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+
+  <!-- Saludo al usuario autenticado -->
+  @if (currentUser) {
+    <div class="user-greeting">
+      <ion-icon name="person-circle-outline"></ion-icon>
+      <span>
+        Hola, <strong>{{ currentUser.name }}</strong>
+        ({{ currentUser.role }})
+      </span>
+    </div>
+  }
+
+  <!-- Grid de fotos -->
+  <ion-grid>
+    <ion-row>
+      @for (photo of photoService.photos; track photo.filepath) {
+        <ion-col size="6" size-md="4" size-lg="3">
+          <ion-card>
+            <img [src]="photo.webviewPath" alt="Foto capturada" />
+            <ion-button
+              expand="block" fill="clear" color="danger" size="small"
+              (click)="removePhoto(photo.filepath)">
+              <ion-icon slot="start" name="trash"></ion-icon>
+              Eliminar
+            </ion-button>
+          </ion-card>
+        </ion-col>
+      }
+    </ion-row>
+  </ion-grid>
+
+  @if (photoService.photos.length === 0) {
+    <div class="empty-state">
+      <p>no hay fotos guardadas .</p>
+      <p>Toca el botón de la cámara para empezar.</p>
+    </div>
+  }
+
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button (click)="addPhotoToGallery()">
+      <ion-icon name="camera"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+
+</ion-content>
