@@ -1,36 +1,24 @@
 // ============================================================
-// MODELOS DE USUARIO Y RESPUESTA DE LOGIN
+// MODELO DE USUARIO
 // ------------------------------------------------------------
-// Una "interface" en TypeScript es un CONTRATO: define la
-// forma (propiedades y tipos) que debe tener un objeto.
-// No genera código en JavaScript: solo sirve para que el
-// compilador valide que los objetos cumplen esa forma.
+// Ahora incluye:
+//   - status: 'active' | 'suspended' (para que el admin pueda
+//     suspender cuentas sin borrarlas definitivamente).
+//   - sellerEmail en Product (para saber qué vendedor publicó).
 // ============================================================
 
-// "export" permite que otros archivos importen esta interface.
 export interface User {
-  // ID único del usuario. Opcional porque un usuario recién
-  // registrado aún no lo tiene (lo genera el backend real).
   id?: string;
-
-  // Correo electrónico: se usa como credencial de login.
   email: string;
-
-  // Rol del usuario en el marketplace. Solo permite estos
-  // tres valores: si escribes otro, TypeScript marca error.
   role: 'comprador' | 'vendedor' | 'administrador';
-
-  // Nombre visible del usuario (opcional).
   name?: string;
+
+  // Estado de la cuenta. Si está 'suspended', el login la
+  // rechaza con un mensaje. Si está 'active', puede entrar.
+  status?: 'active' | 'suspended';
 }
 
-// Forma de la respuesta del endpoint POST /login del backend.
-// El mock imitará exactamente esta estructura.
 export interface LoginResponse {
-  // Token JWT firmado (en el mock, la firma será falsa pero
-  // la estructura será la de un JWT real).
   token: string;
-
-  // Datos del usuario autenticado.
   user: User;
 }

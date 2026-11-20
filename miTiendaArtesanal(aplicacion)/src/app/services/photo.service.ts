@@ -64,6 +64,44 @@ export class PhotoService {
     return saved;
   }
 
+    /**
+   * Captura o elige una foto para un PRODUCTO.
+   * ------------------------------------------------------------
+   * A diferencia de addNewToGallery(), NO añade la foto al
+   * array global `this.photos` ni la persiste en la clave
+   * 'photos'. Solo guarda el archivo en el sistema de archivos
+   * y devuelve el UserPhoto (filepath + webviewPath) para que
+   * la pantalla que lo llama lo use como quiera.
+   *
+   * Se usa en:
+   *   - Publicar producto del vendedor.
+   *   - Foto de perfil del comprador.
+   *
+   * @param source 'camera' para abrir la cámara del dispositivo,
+   *               'gallery' para abrir el selector de archivos.
+   */
+  async captureForProduct(source: 'camera' | 'gallery'): Promise<UserPhoto> {
+  // Declaramos `captured` con el tipo MediaResult y asignamos
+  // según la fuente. Cada método devuelve un tipo distinto:
+  //   - takePhoto()         → MediaResult
+  //   - chooseFromGallery() → MediaResults (array con .results)
+  let captured: MediaResult;
+
+  if (source === 'camera') {
+    captured = await Camera.takePhoto({ quality: 90, editable: 'no' });
+  } else {
+    // chooseFromGallery puede devolver VARIAS fotos.
+    // Tomamos la primera del array.
+    const multi = await Camera.chooseFromGallery({ quality: 90, editable: 'no' });
+    if (!multi.results || multi.results.length === 0) {
+      throw new Error('No se seleccionó ninguna foto');
+    }
+    captured = multi.results[0];
+  }
+
+  return this.savePicture(captured);
+}
+
   /**
    * Guarda físicamente la foto en el sistema de archivos.
    * ------------------------------------------------------------
@@ -129,7 +167,7 @@ export class PhotoService {
           directory: Directory.Data,
         });
         photo.webviewPath = `data:image/jpeg;base64,${readFile.data}`;
-      } catch (e) {
+      } catch  {
         // Si el archivo ya no existe (borrado manual, etc.),
         // advertimos y continuamos con las demás fotos.
         // Este comentario también satisface la regla ESLint
@@ -168,4 +206,5 @@ export class PhotoService {
       // Este comentario evita el warning de "catch vacío".
     }
   }
+  
 }

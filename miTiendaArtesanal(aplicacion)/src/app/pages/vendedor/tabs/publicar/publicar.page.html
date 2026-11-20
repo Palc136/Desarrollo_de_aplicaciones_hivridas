@@ -1,0 +1,160 @@
+<!-- ============================================================
+     VISTA DE PUBLICAR PRODUCTO
+     ------------------------------------------------------------
+     Formulario con:
+       - Preview + botones para foto (cámara / galería).
+       - Selector de categoría.
+       - Nombre, descripción, precio y stock.
+       - Botón "Publicar producto".
+       - Toast de confirmación.
+     ============================================================ -->
+
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Publicar Producto</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="logout()">
+        <ion-icon slot="icon-only" name="log-out-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+
+  <ion-list>
+
+    <!-- ═══════════════════════════════════════════════════ -->
+    <!-- SECCIÓN 1: FOTO DEL PRODUCTO                        -->
+    <!-- ═══════════════════════════════════════════════════ -->
+    <ion-list-header>
+      <ion-label>Foto del producto</ion-label>
+    </ion-list-header>
+
+    <!-- Preview de la foto. @if elige qué mostrar:
+           - Si hay foto, la imagen.
+           - Si no, un placeholder punteado. -->
+    <div class="photo-preview">
+      @if (photo) {
+        <img [src]="photo.webviewPath" alt="Foto del producto" />
+      } @else {
+        <div class="empty-photo">
+          <ion-icon name="camera"></ion-icon>
+          <p>Sin foto</p>
+        </div>
+      }
+    </div>
+
+    <!-- Dos botones para elegir el origen de la foto.
+         El usuario puede cambiar la foto cuantas veces quiera. -->
+    <div class="photo-buttons">
+      <ion-button expand="block" color="primary" (click)="takePhotoFromCamera()">
+        <ion-icon slot="start" name="camera"></ion-icon>
+        Cámara
+      </ion-button>
+
+      <ion-button expand="block" color="secondary" (click)="takePhotoFromGallery()">
+        <ion-icon slot="start" name="images"></ion-icon>
+        Galería
+      </ion-button>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════ -->
+    <!-- SECCIÓN 2: DATOS DEL PRODUCTO                       -->
+    <!-- ═══════════════════════════════════════════════════ -->
+    <ion-list-header>
+      <ion-label>Información del producto</ion-label>
+    </ion-list-header>
+
+    <!-- Categoría: ion-select crea un dropdown con las opciones
+         de la propiedad `categories` del componente. -->
+    <ion-item>
+      <ion-label position="floating">Categoría</ion-label>
+      <ion-select [(ngModel)]="category">
+        @for (cat of categories; track cat) {
+          <ion-select-option [value]="cat">{{ cat }}</ion-select-option>
+        }
+      </ion-select>
+    </ion-item>
+
+    <!-- Nombre del producto -->
+    <ion-item>
+      <ion-label position="floating">Nombre</ion-label>
+      <ion-input
+        [(ngModel)]="name"
+        placeholder="Ej: Mochila Wayúu"
+        maxlength="60">
+      </ion-input>
+    </ion-item>
+
+    <!-- Descripción larga -->
+    <ion-item>
+      <ion-label position="floating">Descripción</ion-label>
+      <ion-textarea
+        [(ngModel)]="description"
+        rows="3"
+        placeholder="Describe el producto brevemente..."
+        maxlength="200">
+      </ion-textarea>
+    </ion-item>
+
+    <!-- Precio en COP. type="number" muestra teclado numérico. -->
+    <ion-item>
+      <ion-label position="floating">Precio (COP)</ion-label>
+      <ion-input
+        type="number"
+        [(ngModel)]="price"
+        placeholder="180000"
+        min="1">
+      </ion-input>
+    </ion-item>
+
+    <!-- Stock disponible -->
+    <ion-item>
+      <ion-label position="floating">Stock</ion-label>
+      <ion-input
+        type="number"
+        [(ngModel)]="stock"
+        placeholder="5"
+        min="0">
+      </ion-input>
+    </ion-item>
+
+    <!-- Nota informativa -->
+    <ion-note color="medium" class="form-note">
+      Todos los campos son obligatorios.
+    </ion-note>
+
+    <!-- ═══════════════════════════════════════════════════ -->
+    <!-- SECCIÓN 3: BOTÓN DE PUBLICAR                        -->
+    <!-- ═══════════════════════════════════════════════════ -->
+    <div class="ion-padding">
+      <ion-button
+        expand="block"
+        color="success"
+        [disabled]="loading"
+        (click)="onSubmit()">
+
+        @if (loading) {
+          <ion-spinner name="crescent"></ion-spinner>
+        } @else {
+          <ion-icon slot="start" name="checkmark-circle"></ion-icon>
+          Publicar producto
+        }
+      </ion-button>
+    </div>
+
+  </ion-list>
+
+  <!-- Toast de confirmación / error.
+       [isOpen] controla si se muestra; didDismiss lo oculta. -->
+  <ion-toast
+    [isOpen]="toastOpen"
+    [message]="toastMessage"
+    [color]="toastColor"
+    [duration]="2000"
+    position="bottom"
+    (didDismiss)="toastOpen = false">
+  </ion-toast>
+
+</ion-content>

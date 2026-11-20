@@ -22,6 +22,7 @@ import type { SegmentCustomEvent } from '@ionic/angular';
 import { addIcons } from 'ionicons';
 import { logInOutline, personAddOutline, alertCircleOutline } from 'ionicons/icons';
 
+import type { User } from '../../models/user.model';
 import { AuthService } from '../../services/auth.service';
 
 
@@ -82,6 +83,8 @@ export class LoginPage {
     // así TypeScript queda contento y el código es defensivo).
   }
 
+  
+
   // ----------------------------------------------------------
   // CAMBIO DE ROL (comprador ↔ vendedor)
   // ----------------------------------------------------------
@@ -120,20 +123,34 @@ export class LoginPage {
   // LOGIN
   // ----------------------------------------------------------
   private async doLogin(): Promise<void> {
-    await this.authService.login(this.email, this.password);
-    // "replaceUrl" evita volver al login con el botón "atrás".
-    await this.router.navigateByUrl('/tabs/tab1', { replaceUrl: true });
-  }
+  // 1. Autenticamos. LoginResponse incluye { token, user }.
+  const response = await this.authService.login(this.email, this.password);
 
-  // ----------------------------------------------------------
-  // REGISTRO
-  // ----------------------------------------------------------
-  // Crea la cuenta y luego hace login automático.
-  private async doRegister(): Promise<void> {
-    await this.authService.register(this.email, this.password, this.role);
-    // Tras registrar, autenticamos al usuario automáticamente
-    // para que no tenga que volver a escribir sus datos.
-    await this.authService.login(this.email, this.password);
-    await this.router.navigateByUrl('/tabs/tab1', { replaceUrl: true });
+  // 2. Redirigimos según el rol del usuario.
+  await this.redirectByRole(response.user);
+}
+
+private async doRegister(): Promise<void> {
+  await this.authService.register(this.email, this.password, this.role);
+  const response = await this.authService.login(this.email, this.password);
+  await this.redirectByRole(response.user);
+}
+
+/**
+ * Redirige al usuario al inicio de su rol correspondiente.
+ * Se ejecuta tras un login o registro exitoso.
+ */
+private async redirectByRole(user: User): Promise<void> {
+  switch (user.role) {
+    case 'comprador':
+      await this.router.navigateByUrl('/comprador/tabs/perfil', { replaceUrl: true });
+      break;
+    case 'vendedor':
+      await this.router.navigateByUrl('/vendedor/tabs/publicar', { replaceUrl: true });
+      break;
+    case 'administrador':
+      await this.router.navigateByUrl('/admin/tabs/cuentas', { replaceUrl: true });
+      break;
   }
+}
 }

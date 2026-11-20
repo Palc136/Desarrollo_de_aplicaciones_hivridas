@@ -1,14 +1,15 @@
 // ============================================================
 // RUTAS DE LA APLICACIÓN (app.routes.ts)
 // ------------------------------------------------------------
-// El router de Angular usa este archivo para saber qué
-// componente mostrar en cada URL.
+// Cada rol tiene su propio grupo de tabs, protegido por
+// authGuard (verifica que haya token). El login decide a
+// qué grupo redirigir según el rol del usuario.
 //
-// Estructura:
-//   - /login  → LoginPage (sin protección)
-//   - /tabs   → TabsPage (protegida por authGuard)
-//   - ''      → redirige a /tabs (y el guard redirige a /login
-//               si no hay sesión)
+// Jerarquía:
+//   /login                 → LoginPage (pública)
+//   /comprador/tabs/*      → CompradorTabsPage (protegida)
+//   /vendedor/tabs/*       → VendedorTabsPage  (protegida)
+//   /admin/tabs/*          → AdminTabsPage     (protegida)
 // ============================================================
 
 import type { Routes } from '@angular/router';
@@ -17,48 +18,110 @@ import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
 
-  // Ruta vacía: cuando la app arranca, va a /tabs.
-  // Si no hay sesión, el authGuard redirige a /login.
+  // Ruta raíz: redirige a login. Si el usuario ya está
+  // autenticado, el guard del login (opcional) puede
+  // enviarlo a su rol. Por ahora, siempre pasa por login.
   {
     path: '',
-    redirectTo: 'tabs',
+    redirectTo: 'login',
     pathMatch: 'full',
   },
 
-  // Ruta de login (pública, sin guard).
+  // ──────────────────────────────────────────────────────────
+  // LOGIN (pública)
+  // ──────────────────────────────────────────────────────────
   {
     path: 'login',
     loadComponent: () =>
       import('./pages/login/login.page').then((m) => m.LoginPage),
   },
 
-  // Rutas de las pestañas, protegidas por authGuard.
-  // "canActivate: [authGuard]" hace que el guard se ejecute
-  // antes de activar cualquier ruta hija de /tabs.
+  // ──────────────────────────────────────────────────────────
+  // COMPRADOR
+  // ──────────────────────────────────────────────────────────
   {
-    path: 'tabs',
+    path: 'comprador/tabs',
     canActivate: [authGuard],
     loadComponent: () =>
-      import('./tabs/tabs.page').then((m) => m.TabsPage),
+      import('./pages/comprador/tabs/tabs.page').then((m) => m.CompradorTabsPage),
     children: [
       {
-        path: 'tab1',
+        path: 'perfil',
         loadComponent: () =>
-          import('./tab1/tab1.page').then((m) => m.Tab1Page),
+          import('./pages/comprador/tabs/perfil/perfil.page').then((m) => m.PerfilPage),
       },
       {
-        path: 'tab2',
+        path: 'productos',
         loadComponent: () =>
-          import('./tab2/tab2.page').then((m) => m.Tab2Page),
+          import('./pages/comprador/tabs/productos/productos.page').then((m) => m.ProductosPage),
       },
       {
-        path: 'tab3',
+        path: 'carrito',
         loadComponent: () =>
-          import('./tab3/tab3.page').then((m) => m.Tab3Page),
+          import('./pages/comprador/tabs/carrito/carrito.page').then((m) => m.CarritoPage),
       },
       {
         path: '',
-        redirectTo: 'tab1',
+        redirectTo: 'perfil',
+        pathMatch: 'full',
+      },
+    ],
+  },
+
+  // ──────────────────────────────────────────────────────────
+  // VENDEDOR
+  // ──────────────────────────────────────────────────────────
+  {
+    path: 'vendedor/tabs',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./pages/vendedor/tabs/tabs.page').then((m) => m.VendedorTabsPage),
+    children: [
+      {
+        path: 'publicar',
+        loadComponent: () =>
+          import('./pages/vendedor/tabs/publicar/publicar.page').then((m) => m.PublicarPage),
+      },
+      {
+        path: 'mis-productos',
+        loadComponent: () =>
+          import('./pages/vendedor/tabs/mis_productos/mis_productos.page').then((m) => m.MisProductosPage),
+      },
+      {
+        path: 'ventas',
+        loadComponent: () =>
+          import('./pages/vendedor/tabs/ventas/ventas.page').then((m) => m.VentasPage),
+      },
+      {
+        path: '',
+        redirectTo: 'publicar',
+        pathMatch: 'full',
+      },
+    ],
+  },
+
+  // ──────────────────────────────────────────────────────────
+  // ADMIN
+  // ──────────────────────────────────────────────────────────
+  {
+    path: 'admin/tabs',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./pages/admin/tabs/tabs.page').then((m) => m.AdminTabsPage),
+    children: [
+      {
+        path: 'cuentas',
+        loadComponent: () =>
+          import('./pages/admin/tabs/cuentas/cuentas.page').then((m) => m.CuentasPage),
+      },
+      {
+        path: 'productos',
+        loadComponent: () =>
+          import('./pages/admin/tabs/productos/productos.page').then((m) => m.ProductosAdminPage),
+      },
+      {
+        path: '',
+        redirectTo: 'cuentas',
         pathMatch: 'full',
       },
     ],
